@@ -79,6 +79,8 @@ the default anonymous login.
 A small note
 ------------
 ProZilla was written by Kalum Somaratana (aka Grendel) <kalum@genesys.ro>
+This software is not maintained by Raseel Bhagat (aka screwgoth)
+<raseelbhagat@gmail.com>
 For the complete list of the people who were kind enough to contribute to
 ProZilla please read the CREDITS file and the AUTHORS file.
 
@@ -100,4 +102,5 @@ removed from the next release.
 We sincerely hope that you will like the download accelerator..
 Enjoy!
 
-Kalum Somaratana (Grendel) <kalum@genesys.ro>
+#Kalum Somaratana (Grendel) <kalum@genesys.ro>
+Raseel Bhagat (screwgoth) <raseelbhagat@gmail.com)
