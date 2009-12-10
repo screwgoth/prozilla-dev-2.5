@@ -20,7 +20,6 @@
 #  include <config.h>
 #endif
 
-//#include <malloc.h>
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -44,37 +43,33 @@
 
 struct runtime rt;
 
-// structure for options parsing,
-
+/* structure for options parsing */
 struct option long_opts[] = {
-	/*
-	 * { name  has_arg  *flag  val } 
-	 */
+	/*{ name,  has_arg,  *flag,  val }*/ 
 	{"resume", no_argument, NULL, 'r'},
-/*    {"connections", required_argument, NULL, 'c'},*/
 	{"license", no_argument, NULL, 'L'},
 	{"help", no_argument, NULL, 'h'},
 	{"gtk", no_argument, NULL, 'g'},
 	{"no-netrc", no_argument, NULL, 'n'},
 	{"tries", required_argument, NULL, 't'},
 	{"force", no_argument, NULL, 'f'},
-	{"version", no_argument, NULL, 'v'},
+	{"version", no_argument, NULL, 'V'},
 	{"directory-prefix", required_argument, NULL, 'P'},
-	{"use-port", no_argument, NULL, 129},
-	{"retry-delay", required_argument, NULL, 130},
-	{"timeout", required_argument, NULL, 131},
-	{"no-getch", no_argument, NULL, 132},
-	{"debug", no_argument, NULL, 133},
+	{"use-port", no_argument, NULL, _OPT_USEPORT},
+	{"retry-delay", required_argument, NULL, _OPT_RETRYDELAY},
+	{"timeout", required_argument, NULL, _OPT_TIMEOUT},
+	{"no-getch", no_argument, NULL, _OPT_NOGETCH},
+	{"debug", no_argument, NULL, _OPT_DEBUG},
 	{"ftpsearch", no_argument, NULL, 's'},
-	{"no-search", no_argument, NULL, 135},
-	{"pt", required_argument, NULL, 136},
-	{"pao", required_argument, NULL, 137},
-	{"max-ftps-servers", required_argument, NULL, 138},
-	{"max-bps", required_argument, NULL, 139},
+	{"no-search", no_argument, NULL, _OPT_NOSEARCH},
+	{"pt", required_argument, NULL, _OPT_PT},
+	{"pao", required_argument, NULL, _OPT_PAO},
+	{"max-ftps-servers", required_argument, NULL, _OPT_MAXFTPSRV},
+	{"max-bps", required_argument, NULL, _OPT_MAXBPS},
 	{"verbose", no_argument, NULL, 'v'},
-	{"no-curses", no_argument, NULL, 140},
-	{"min-size",required_argument,NULL,141},
-	{"ftpsid", required_argument, NULL,142},
+	{"no-curses", no_argument, NULL, _OPT_NOCURSES},
+	{"min-size",required_argument,NULL, _OPT_MINSIZE},
+	{"ftpsid", required_argument, NULL, _OPT_FTPSID},
 	{0, 0, 0, 0}
 };
 
@@ -131,7 +126,7 @@ help (void)
 		 "                        print the error to stdout and quit\n"
 		 "      --debug           Log debugging info to a file (default is debug.log)\n"
 		 "      -v,--verbose      Increase the amount of information sent to stdout\n"
-		 "      --no-curses       Don't use Curses, plain text to stdout\n"
+		 "      --no-curses       Don't use Curses, use Stdout for display\n"
 		 "\n"
 		 "Directories:\n"
 		 "      -P,  --directory-prefix=DIR  save the generated file to DIR/\n"
@@ -197,17 +192,15 @@ open_new_dl_win (urlinfo * url_data, boolean ftpsearch)
 
 	proz_debug ("calling the callback function...");
 
-	//need a timer here...
-	while (dl_win->status != DL_DONE && dl_win->status != DL_IDLING && dl_win->status != DL_ABORTED)
-	{
-		delay_ms (700);	//wait before checking the status again...
+	/* need a timer here... */
+	while ((dl_win->status != DL_DONE) && (dl_win->status != DL_IDLING) &&
+			(dl_win->status != DL_ABORTED)){
+		/* wait before checking the status again... */
+		delay_ms (700);
 		dl_win->my_cb ();
 	}
 
-	
-
-return((dl_win->status==DL_DONE) ? 1:-1);
-	//	delete (dl_win);
+ 	return((dl_win->status==DL_DONE) ? 1:-1);
 }
 
 
@@ -216,312 +209,273 @@ main (int argc, char **argv)
 {
 	int c;
 	int ret;
-	proz_init (argc, argv);	//init libprozilla
-	set_defaults ();	//set some reasonable defaults
-	load_prefs ();		//load values from the config file
+	/* Init libprozilla */
+	proz_init (argc, argv);
+	/* Set some resonable defaults */
+	set_defaults ();
+	/* Load values from config file */
+	load_prefs ();
 
-	while ((c =
-		getopt_long (argc, argv, "?hvrfk:1Lt:VgsP:", long_opts,
-			     NULL)) != EOF)
-	{
-		switch (c)
-		{
-		case 'L':
-			license ();
-			exit (0);
-		case 'h':
-			help ();
-			exit (0);
-		case 'V':
-			version ();
-			exit (0);
-		case 'r':
-			rt.resume_mode = RESUME;
-			break;
-		case 'f':
-			rt.force_mode = TRUE;
-			break;
-		case 'k':
-			if (setargval (optarg, &rt.num_connections) != 1)
-			{
-				/*
-				 * The call failed  due to a invalid arg
-				 */
-				printf (_("Error: Invalid arguments for the -k option\n" "Please type proz --help for help\n"));
+	while ((c = getopt_long (argc, argv, "?hvrfk:1Lt:VgsP:", long_opts,
+					NULL)) != EOF){
+		switch (c){
+			case 'L':
+				license ();
 				exit (0);
-			}
-
-			if (rt.num_connections == 0)
-			{
-				printf (_("Hey! How can I download anything with 0 (Zero)" " connections!?\n" "Please type proz --help for help\n"));
+			case 'h':
+				help ();
 				exit (0);
-			}
-
-			break;
-		case 't':
-			if (setargval (optarg, &rt.max_attempts) != 1)
-			{
-				/*
-				 * The call failed  due to a invalid arg
-				 */
-				printf (_("Error: Invalid arguments for the -t or --tries option(s)\n" "Please type proz --help for help\n"));
+			case 'V':
+				version ();
 				exit (0);
-			}
-			break;
-		case 'n':
-			/*
-			 * Don't use ~/.netrc" 
-			 */
-			rt.use_netrc = FALSE;
-			break;
+			case 'r':
+				rt.resume_mode = RESUME;
+				break;
+			case 'f':
+				rt.force_mode = TRUE;
+				break;
+			case 'k':
+				if (setargval (optarg, &rt.num_connections) != 1){
+					/* The call failed  due to a invalid arg */
+					printf (_("Error: Invalid arguments for the -k option\n"
+								"Please type proz --help for help\n"));
+					exit (-1);
+				}
 
-		case 'P':
-			/*
-			 * Save the downloaded file to DIR 
-			 */
-			rt.output_dir = kstrdup (optarg);
-			break;
-		case '?':
-			help ();
-			exit (0);
-			break;
-		case '1':
-			rt.num_connections = 1;
-			break;
-
-		case 'g':
-			/*
-			 * TODO solve this soon 
-			 */
-			printf ("Error: GTK interface is not supported in "
-				"the development version currently\n");
-			exit (0);
-			break;
-
-		case 129:
-			/*
-			 * lets use PORT as the default then 
-			 */
-			rt.ftp_use_pasv = FALSE;
-			break;
-		case 130:
-			/*
-			 * retry-delay option 
-			 */
-			if (setargval (optarg, &rt.retry_delay) != 1)
-			{
-				/*
-				 * The call failed  due to a invalid arg
-				 */
-				printf (_("Error: Invalid arguments for the --retry-delay option\n" "Please type proz --help for help\n"));
+				if (rt.num_connections == 0){
+					printf (_("Hey! How can I download anything with 0 (Zero)"
+								" connections!?\n"
+								"Please type proz --help for help\n"));
+					exit (-1);
+				}
+				break;
+			case 't':
+				if (setargval (optarg, &rt.max_attempts) != 1){
+					/* The call failed  due to a invalid arg */
+					printf (_("Error: Invalid arguments for the -t or --tries"
+								" option(s)\n"
+								"Please type proz --help for help\n"));
+					exit (-1);
+				}
+				break;
+			case 'n':
+				/* Don't use ~/.netrc" */
+				rt.use_netrc = FALSE;
+				break;
+			case 'P':
+				/* Save the downloaded file to DIR */
+				rt.output_dir = kstrdup (optarg);
+				break;
+			case '?':
+				help ();
 				exit (0);
-			}
-			break;
-		case 131:
-	    /*--timout option */
-			if (setargval (optarg, &rt.itimeout) != 1)
-			{
-				/*
-				 * The call failed  due to a invalid arg
-				 */
-				printf (_("Error: Invalid arguments for the --timeout option\n" "Please type proz --help for help\n"));
-				exit (0);
-			}
-			break;
-		case 132:
-			/* --no-getch option */
-			rt.dont_prompt = TRUE;
-			break;
+				break;
+			case '1':
+				rt.num_connections = 1;
+				break;
+			case 'g':
+				/* TODO: solve this soon */
+				printf ("Error: GTK interface is not supported in "
+						"the development version currently\n");
+				exit (-1);
+				break;
+			case _OPT_USEPORT:
+				/* Lets use PORT as the default then */
+				rt.ftp_use_pasv = FALSE;
+				break;
+			case _OPT_RETRYDELAY:
+				/* Retry-delay option */
+				if (setargval (optarg, &rt.retry_delay) != 1){
+					/* The call failed  due to a invalid arg */
+					printf (_("Error: Invalid arguments for the --retry-delay"
+								" option\n"
+								"Please type proz --help for help\n"));
+					exit (-1);
+				}	
+				break;
+			case _OPT_TIMEOUT:
+				/* --timout option */
+				if (setargval (optarg, &rt.itimeout) != 1){
+					/* The call failed  due to a invalid arg */
+					printf (_("Error: Invalid arguments for the --timeout"
+								" option\n"
+								"Please type proz --help for help\n"));
+					exit (-1);
+				}
+				break;
+			case _OPT_NOGETCH:
+				/* --no-getch option */
+				rt.dont_prompt = TRUE;
+				break;
+			case _OPT_DEBUG:
+				/* --debug option */
+				rt.debug_mode = TRUE;
+				rt.libdebug_mode=TRUE;
+				break;
+			case 'v':
+				/* --verbose option */
+				rt.quiet_mode = FALSE;
+				break;
+			case 's':
+				/* --ftpsearch option */
+				rt.ftp_search = TRUE;
+				break;
+			case _OPT_NOSEARCH:
+				/* --no-search option */
+				rt.ftp_search = FALSE;
+				break;
+			case _OPT_PT:
+				/* --pt option */
+				if (setargval (optarg, &rt.max_ping_wait) != 1){
+					/* The call failed  due to a invalid arg */
+					printf (_("Error: Invalid arguments for the --pt option\n"
+								"Please type proz --help for help\n"));
+					exit (-1);
+				}
 
-		case 133:
-			/* --debug option */
-			rt.debug_mode = TRUE;
-			rt.libdebug_mode=TRUE;
-			break;
+				if (rt.max_ping_wait == 0){
+					printf (_("Hey! Does waiting for a server response for "
+								"Zero(0) seconds make and sense to you!?\n"
+								"Please type proz --help for help\n"));
+					exit (-1);
+				}
+				break;
+			case _OPT_PAO:
+				/* --pao option */
+				if (setargval (optarg, &rt.max_simul_pings) != 1){
+					/* The call failed  due to a invalid arg */
+					printf (_("Error: Invalid arguments for the --pao "
+								"option\n"
+								"Please type proz --help for help\n"));
+					exit (-1);
+				}
 
-		case 'v':
-			/* --verbose option */
-			rt.quiet_mode = FALSE;
-			break;
+				if (rt.max_simul_pings == 0){
+					printf (_("Hey you! Will pinging Zero(0) servers at once"
+								" achive anything for me!?\n"
+								"Please type proz --help for help\n"));
+					exit (-1);
+				}
+				break;
+			case _OPT_MAXFTPSRV:
+				/* --max-ftp-servers option */
+				if (setargval (optarg, &rt.ftps_mirror_req_n) != 1){
+					/* The call failed  due to a invalid arg */
+					printf (_("Error: Invalid arguments for the"
+								" --max-ftps-servers option\n"
+								"Please type proz --help for help\n"));
+					exit (-1);
+				}
 
-		case 's':
-			/* --ftpsearch option */
-			rt.ftp_search = TRUE;
-			break;
+				if (rt.ftps_mirror_req_n == 0){
+					printf (_("Hey! Will requesting Zero(0) servers at once"
+								" from the ftpearch achive anything!?\n"
+								"Please type proz --help for help\n"));
+					exit (-1);
+				}
+				break;
+			case _OPT_MAXBPS:
+				/* --max-bps */
+				if (setlongargval (optarg, &rt.max_bps_per_dl) != 1){
+					/* The call failed  due to a invalid arg */
+					printf (_("Error: Invalid arguments for the --max-bps"
+								" option\n"
+								"Please type proz --help for help\n"));
+					exit (-1);
+				}
+				break;
+			case _OPT_NOCURSES:
+      			rt.display_mode = DISP_STDOUT;
+      			break;
+			case _OPT_MINSIZE:
+				/* --min-size */
+				if (setlongargval (optarg, &rt.min_search_size) != 1){
+					/* The call failed  due to a invalid arg */
+					printf (_("Error: Invalid arguments for the --min-size"
+								" option\n" 
+								"Please type proz --help for help\n"));
+					exit (-1);
+				}
+				break;
+			case _OPT_FTPSID:
+				/* --ftpsid */
+				if (setargval (optarg, &rt.ftpsearch_server_id) != 1){
+					/* The call failed  due to a invalid arg */
+					printf (_("Error: Invalid arguments for the --ftpsid"
+								" option\n"
+								"Please type proz --help for help\n"));
+					exit (-1);
+				}
 
-		case 135:
-			/* --no-search option */
-			rt.ftp_search = FALSE;
-			break;
-
-		case 136:
-			/* --pt option */
-			if (setargval (optarg, &rt.max_ping_wait) != 1)
-			{
-				/*
-				 * The call failed  due to a invalid arg
-				 */
-				printf (_("Error: Invalid arguments for the --pt option\n" "Please type proz --help for help\n"));
-				exit (0);
-			}
-
-			if (rt.max_ping_wait == 0)
-			{
-				printf (_("Hey! Does waiting for a server response for Zero(0)" " seconds make and sense to you!?\n" "Please type proz --help for help\n"));
-				exit (0);
-			}
-
-			break;
-		case 137:
-			/* --pao option */
-			if (setargval (optarg, &rt.max_simul_pings) != 1)
-			{
-				/*
-				 * The call failed  due to a invalid arg
-				 */
-				printf (_("Error: Invalid arguments for the --pao option\n" "Please type proz --help for help\n"));
-				exit (0);
-			}
-
-			if (rt.max_simul_pings == 0)
-			{
-				printf (_("Hey you! Will pinging Zero(0) servers at once" " achive anything for me!?\n" "Please type proz --help for help\n"));
-				exit (0);
-			}
-
-			break;
-
-		case 138:
-			/* --max-ftp-servers option */
-			if (setargval (optarg, &rt.ftps_mirror_req_n) != 1)
-			{
-				/*
-				 * The call failed  due to a invalid arg
-				 */
-				printf (_("Error: Invalid arguments for the --pao option\n" "Please type proz --help for help\n"));
-				exit (0);
-			}
-
-			if (rt.ftps_mirror_req_n == 0)
-			{
-				printf (_("Hey! Will requesting Zero(0) servers at once" "from the ftpearch achive anything!?\n" "Please type proz --help for help\n"));
-				exit (0);
-			}
-
-			break;
-		case 139:
-			/* --max-bps */
-			if (setlongargval (optarg, &rt.max_bps_per_dl) != 1)
-			{
-				/*
-				 * The call failed  due to a invalid arg
-				 */
-				printf (_("Error: Invalid arguments for the --max-bps option\n" "Please type proz --help for help\n"));
-				exit (0);
-			}
-			break;
-		case 140:
-      rt.display_mode = DISP_STDOUT;
-      break;
-		case 141:
-			/* --min-size */
-			if (setlongargval (optarg, &rt.min_search_size) != 1)
-			{
-				/*
-				 * The call failed  due to a invalid arg
-				 */
-				printf (_("Error: Invalid arguments for the --min-size option\n" "Please type proz --help for help\n"));
-				exit (0);
-			}
-			break;
-
-		case 142:
-			/* --ftpsid */
-		
-			if (setargval (optarg, &rt.ftpsearch_server_id) != 1)
-			{
-				/*
-				 * The call failed  due to a invalid arg
-				 */
-				printf (_("Error: Invalid arguments for the --ftpsid option\n" "Please type proz --help for help\n"));
-				exit (0);
-			}
-
-			if (rt.ftpsearch_server_id < 0 || rt.ftpsearch_server_id >1)
-			{
-				printf (_("The available servers are (0) filesearching.com and (1) ftpsearch.elmundo.es\n" "Please type proz --help for help\n"));
-				exit (0);
-			}
-
-			break;
-
-
-
-		default:
-			printf (_("Error: Invalid  option\n"));
-			exit (0);
+				if (rt.ftpsearch_server_id < 0 || rt.ftpsearch_server_id >1){
+					printf (_("The available servers are (0)filesearching.com"
+								" and (1) ftpsearch.elmundo.es\n"
+								"Please type proz --help for help\n"));
+					exit (-1);
+				}
+				break;
+			default:
+				printf (_("Error: Invalid  option\n"));
+				exit (-1);
 		}
 	}
 
-	set_runtime_values ();	//tell libprozilla about any changed settings
+	/* tell libprozilla about any changed settings */
+	set_runtime_values ();
 
-	if (optind == argc)
-	{
+	if (optind == argc){
 		help ();
-	}
-	else
-	{
+	}else{
 		/* Gettext stuff */
 		setlocale (LC_ALL, "");
 		bindtextdomain (PACKAGE, LOCALEDIR);
 		textdomain (PACKAGE);
 
-		/*delete the ~/.prozilla/debug.log file if present at the start of each run */
+		/*delete the ~/.prozilla/debug.log file if present at the start of
+		 * each run */
 		proz_debug_delete_log ();
 
-    if (rt.display_mode == DISP_CURSES)
-      initCurses();
+    	if (rt.display_mode == DISP_CURSES)
+      		initCurses();
     
-		/* we will now see whether the user has specfied any urls in the command line  and add them */
-		for (int i = optind; i < argc; i++)
-		{
+		/* we will now see whether the user has specfied any urls in the 
+		 * command line and add them */
+		for (int i = optind; i < argc; i++){
 			uerr_t err;
 			urlinfo *url_data;
 			url_data = (urlinfo *) malloc (sizeof (urlinfo));
 			memset (url_data, 0, sizeof (urlinfo));
-
-			//parses and validates the command-line parm
+			
+			/* parses and validates the command-line parm */
 			err = proz_parse_url (argv[i], url_data, 0);
-			if (err != URLOK)
-			{
+			if (err != URLOK){
 				PrintMessage (_
 					("%s does not seem to be a valid URL"),
 					argv[optind]);
 				proz_debug
 					("%s does not seem to be a valid URL",
-					 argv[optind]);
-				exit (0);
+				 	argv[optind]);
+				exit (-1);
 			}
 
 			PrintMessage("Starting.....");
-	//In to %s\n",url_data->host);
-			// start the download
+			/* start the download */
+			
 			ret=open_new_dl_win (url_data, rt.ftp_search);
 			/*If the download failed the return -1 */
-			if(ret==-1)
-			  {
-			    free(url_data);
-			    delete(dl_win);
-			    shutdown();
-			    return -1;
-			  }
+			if(ret==-1){
+				free(url_data);
+				delete(dl_win);
+				shutdown();
+				return -1;
+			}
 			delete(dl_win);
 			free (url_data);
 		}
 	}
 
   shutdown();
-
+  return 0;
 }
 
 void shutdown(void)
@@ -529,7 +483,7 @@ void shutdown(void)
 
    cleanuprt ();
 
-  if (rt.display_mode == DISP_CURSES)
+   if (rt.display_mode == DISP_CURSES)
     shutdownCurses();
     
    proz_shutdown ();

@@ -7,7 +7,6 @@
 
 /* Gettext */
 #include <libintl.h>
-//#define _(String) dgettext (PACKAGE,String)
 #define gettext_noop(String) (String)
 #ifndef HAVE_GNOME
 #define N_(String) gettext_noop (String)
@@ -27,20 +26,32 @@
     DISP_CURSES,
     DISP_STDOUT
   } DISPLAYMODE;
-  
+
+/* Long options */
+#define _OPT_USEPORT        129
+#define _OPT_RETRYDELAY     130
+#define _OPT_TIMEOUT        131
+#define _OPT_NOGETCH        132
+#define _OPT_DEBUG          133
+#define _OPT_NOSEARCH       135
+#define _OPT_PT             136
+#define _OPT_PAO            137
+#define _OPT_MAXFTPSRV      138
+#define _OPT_MAXBPS         139
+#define _OPT_NOCURSES       140
+#define _OPT_MINSIZE        141
+#define _OPT_FTPSID         142
+
 struct runtime {
   int num_connections;
   int max_redirections;
-  /*
-   * whether to use the netrc file 
-   */
+  /* whether to use the netrc file */
   int use_netrc;
   int ftp_use_pasv;
   int max_attempts;
-  int retry_delay;		/*delay in seconds */
-  /*
-   * The timeout period for the connections 
-   */
+  /* delay in seconds */
+  int retry_delay;
+  /* The timeout period for the connections */
   struct timeval timeout;
   int itimeout;
   int debug_mode;
@@ -68,13 +79,15 @@ struct runtime {
   int use_http_proxy;
   int use_ftp_proxy;
   int http_no_cache;
-  //int use_ftpsearch;
   int ftpsearch_server_id;
-  //new options
-  int resume_mode;			//
-  int dont_prompt;	//don't prompt user, display message and die
-  int display_mode; //curses, bare terminal, others...
-  long min_search_size;  //size in K
+  /* new options */
+  int resume_mode;
+  /* don't prompt user, display message and die */
+  int dont_prompt;
+  /* curses, bare terminal, others... */
+  int display_mode;
+  /* search size in K */
+  long min_search_size;
 };
 
 extern struct runtime rt;
