@@ -54,8 +54,7 @@ void set_defaults()
    */
   memset(&rt, 0, sizeof(rt));
 
-  if (getcwd(cwd, sizeof(cwd)) == NULL)
-  {
+  if (getcwd(cwd, sizeof(cwd)) == NULL){
     proz_debug("Failed to get the current working directory");
     strcpy(cwd, ".");
   }
@@ -71,17 +70,13 @@ void set_defaults()
   snprintf(rt.config_dir, PATH_MAX, "%s/%s", rt.home_dir, PRZCONFDIR);
   /* Make the ~/.prozilla directory if necessary */
 
-  if (stat(rt.config_dir, &st) == -1)
-  {
+  if (stat(rt.config_dir, &st) == -1){
     /*error has hapenned */
-    if (errno == ENOENT)
-    {
+    if (errno == ENOENT){
       /*Create the dir then */
-      if (mkdir(rt.config_dir, S_IRWXU) != 0)
-      {
-	perror
-	    (_("unable to create the directory to store the config info in"));
-	exit(0);
+      if (mkdir(rt.config_dir, S_IRWXU) != 0){
+		  perror(_("unable to create the directory to store the config info in"));
+		  exit(0);
       }
     } else
       perror(_("Error while stating the config info directory"));
@@ -125,10 +120,8 @@ void set_defaults()
   /*
    * The max number of trys and the delay between each 
    */
-  rt.max_attempts = 0;		/*TODO it is currently UNLIMITED */
-  rt.retry_delay = 15;		/*
-				 * delay in seconds 
-				 */
+  rt.max_attempts = 0; /* TODO : It is currently unlimited */
+  rt.retry_delay = 15;	/* delay in seconds */
 
   /*Default is to not log any debug info */
   rt.debug_mode = FALSE;
@@ -163,11 +156,12 @@ void set_defaults()
   rt.http_no_cache = FALSE;
   rt.timeout.tv_sec = 90;
   rt.timeout.tv_usec = 0;
-  //rt.use_ftpsearch=FALSE;
   rt.ftpsearch_server_id = 1;
   /*Set the values necessary for libprozilla */
-  rt.display_mode = DISP_CURSES;
+  rt.display_mode = DISP_STDOUT;
   set_runtime_values();
+
+  return;
 }
 
 
@@ -196,6 +190,8 @@ void set_runtime_values()
   libprozrtinfo.max_bps_per_dl = rt.max_bps_per_dl;
   libprozrtinfo.debug_mode = rt.libdebug_mode;
   libprozrtinfo.max_attempts = rt.max_attempts;
+
+  return;
 }
 
 
@@ -223,4 +219,5 @@ void cleanuprt()
   if (rt.logfile_dir != 0)
     free(rt.logfile_dir);
 
-  }
+  return;
+}

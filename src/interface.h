@@ -17,8 +17,10 @@
 #ifndef INTERFACE_H
 
 #include "prozilla.h"
-//#include "connection.h"
-//#include "ftpsearch_win.h"
+/*
+ * #include "connection.h"
+ * #include "ftpsearch_win.h"
+ */
 
 #ifdef __cplusplus
 extern "C" {

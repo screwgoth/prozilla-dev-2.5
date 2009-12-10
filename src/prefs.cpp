@@ -84,7 +84,7 @@ prefopt_t pref_opts[] = {
   {"debug", set_debug_mode, 1},
   {"libdebug", set_libdebug_mode, 1},
   {"pragmanocache", set_http_no_cache, 1},
-  //  {"outputdir", set_output_dir, 1},
+  /*{"outputdir", set_output_dir, 1},*/
   {"httpproxy", set_http_proxy, 1},
   {"httpproxyuser", set_http_proxy_username, 1},
   {"httpproxypassword", set_http_proxy_passwd, 1},
@@ -108,137 +108,130 @@ prefopt_t pref_opts[] = {
 void set_num_threads(int i, const char *const val, FILE * const fp)
 {
 
-  if (fp != NULL)
-  {
+  if (fp != NULL){
     fprintf(fp, "%d", rt.num_connections);
-  } else
-  {
+  } else {
     rt.num_connections = atoi(val);
     if (rt.num_connections <= 0 || rt.num_connections > 30)
       rt.num_connections = 4;
   }
+  return;
 }
 
 
 void set_max_attempts(int i, const char *const val, FILE * const fp)
 {
-  if (fp != NULL)
-  {
+  if (fp != NULL){
     fprintf(fp, "%d", rt.max_attempts);
-  } else
-  {
+  } else{
     rt.max_attempts = atoi(val);
     if (rt.max_attempts < 0)
       rt.max_attempts = 0;
   }
+  return;
 }
 
 void set_retry_delay(int i, const char *const val, FILE * const fp)
 {
-  if (fp != NULL)
-  {
+  if (fp != NULL){
     fprintf(fp, "%d", rt.retry_delay);
-  } else
-  {
+  } else{
     rt.retry_delay = atoi(val);
     if (rt.retry_delay < 0)
       rt.retry_delay = 15;
   }
+  return;
 }
 
 
 void set_conn_timeout(int i, const char *const val, FILE * const fp)
 {
-  if (fp != NULL)
-  {
+  if (fp != NULL){
     fprintf(fp, "%d", (int) rt.timeout.tv_sec);
-  } else
-  {
+  } else{
     rt.timeout.tv_sec = atoi(val);
     rt.timeout.tv_usec = 0;
 
     if (rt.timeout.tv_sec < 0)
       rt.timeout.tv_sec = 90;
   }
+  return;
 }
 
 
 void set_max_bps_per_dl(int i, const char *const val, FILE * const fp)
 {
-  if (fp != NULL)
-  {
+  if (fp != NULL){
     fprintf(fp, "%d", (int) rt.max_bps_per_dl);
-  } else
-  {
+  } else{
     rt.max_bps_per_dl = atoi(val);
 
     if (rt.max_bps_per_dl < 0)
       rt.max_bps_per_dl = 0;
   }
 
+  return;
 }
 
 void set_use_pasv(int i, const char *const val, FILE * const fp)
 {
 
-  if (fp != NULL)
-  {
+  if (fp != NULL){
     fprintf(fp, "%d", rt.ftp_use_pasv);
-  } else
-  {
+  } else{
     rt.ftp_use_pasv = atoi(val);
   }
-
+ 
+  return;
 }
 
 
 void set_debug_mode(int i, const char *const val, FILE * const fp)
 {
 
-  if (fp != NULL)
-  {
+  if (fp != NULL){
     fprintf(fp, "%d", rt.debug_mode);
-  } else
-  {
+  } else{
     rt.debug_mode = atoi(val);
   }
+ 
+  return;
 }
 
 void set_libdebug_mode(int i, const char *const val, FILE * const fp)
 {
 
-  if (fp != NULL)
-  {
+  if (fp != NULL){
     fprintf(fp, "%d", rt.libdebug_mode);
-  } else
-  {
+  } else{
     rt.libdebug_mode = atoi(val);
   }
+ 
+  return;
 }
 
 void set_http_no_cache(int i, const char *const val, FILE * const fp)
 {
 
-  if (fp != NULL)
-  {
+  if (fp != NULL){
     fprintf(fp, "%d", rt.http_no_cache);
-  } else
-  {
+  } else{
     rt.http_no_cache = atoi(val);
   }
+ 
+  return;
 }
 
 void set_output_dir(int i, const char *const val, FILE * const fp)
 {
-  if (fp != NULL)
-  {
+  if (fp != NULL){
     fprintf(fp, "%s", rt.output_dir);
-  } else
-  {
+  } else{
     free(rt.output_dir);
     rt.output_dir = strdup(val);
   }
 
+  return;
 }
 
 
@@ -248,34 +241,33 @@ void set_http_proxy(int i, const char *const val, FILE * const fp)
   uerr_t err;
   urlinfo url_data;
 
-  if (fp != NULL)
-  {
+  if (fp != NULL){
     fprintf(fp, "%s:%d", rt.http_proxy->proxy_url.host,
 	    rt.http_proxy->proxy_url.port);
-  } else
-  {
+  } else{
     err = proz_parse_url(val, &url_data, 0);
-    if (err != URLOK)
-    {
+    if (err != URLOK){
       proz_debug("%s does not seem to be a valid  proxy value", val);
       return;
     }
     proz_free_url(&rt.http_proxy->proxy_url, 0);
     memcpy(&rt.http_proxy->proxy_url, &url_data, sizeof(url_data));
   }
+
+  return;
 }
 
 void set_http_proxy_username(int i, const char *const val, FILE * const fp)
 {
 
-  if (fp != NULL)
-  {
+  if (fp != NULL){
     fprintf(fp, "%s", rt.http_proxy->username);
-  } else
-  {
+  } else{
     free(rt.http_proxy->username);
     rt.http_proxy->username = strdup(val);
   }
+
+  return;
 }
 
 
@@ -283,27 +275,27 @@ void set_http_proxy_username(int i, const char *const val, FILE * const fp)
 void set_http_proxy_passwd(int i, const char *const val, FILE * const fp)
 {
 
-  if (fp != NULL)
-  {
+  if (fp != NULL){
     fprintf(fp, "%s", rt.http_proxy->passwd);
-  } else
-  {
+  } else{
     free(rt.http_proxy->passwd);
     rt.http_proxy->passwd = strdup(val);
   }
+
+  return;
 }
 
 
 void set_http_proxy_type(int i, const char *const val, FILE * const fp)
 {
 
-  if (fp != NULL)
-  {
+  if (fp != NULL){
     fprintf(fp, "%d", (int) rt.http_proxy->type);
-  } else
-  {
+  } else{
     rt.http_proxy->type = (proxy_type) atoi(val);
   }
+
+  return;
 }
 
 
@@ -311,13 +303,13 @@ void set_http_proxy_type(int i, const char *const val, FILE * const fp)
 void set_http_use_proxy(int i, const char *const val, FILE * const fp)
 {
 
-  if (fp != NULL)
-  {
+  if (fp != NULL){
     fprintf(fp, "%d", rt.use_http_proxy);
-  } else
-  {
+  } else{
     rt.use_http_proxy = atoi(val);
   }
+
+  return;
 }
 
 
@@ -329,101 +321,100 @@ void set_ftp_proxy(int i, const char *const val, FILE * const fp)
   uerr_t err;
   urlinfo url_data;
 
-  if (fp != NULL)
-  {
+  if (fp != NULL){
     fprintf(fp, "%s:%d", rt.ftp_proxy->proxy_url.host,
 	    rt.ftp_proxy->proxy_url.port);
-  } else
-  {
+  } else{
     err = proz_parse_url(val, &url_data, 0);
-    if (err != URLOK)
-    {
+    if (err != URLOK){
       proz_debug("%s does not seem to be a valid  proxy value", val);
       return;
     }
     proz_free_url(&rt.ftp_proxy->proxy_url, 0);
     memcpy(&rt.ftp_proxy->proxy_url, &url_data, sizeof(url_data));
   }
+
+  return;
 }
 
 void set_ftp_proxy_username(int i, const char *const val, FILE * const fp)
 {
 
-  if (fp != NULL)
-  {
+  if (fp != NULL){
     fprintf(fp, "%s", rt.ftp_proxy->username);
-  } else
-  {
+  } else{
     free(rt.ftp_proxy->username);
     rt.ftp_proxy->username = strdup(val);
   }
+
+  return;
 }
 
 
 void set_ftp_proxy_passwd(int i, const char *const val, FILE * const fp)
 {
 
-  if (fp != NULL)
-  {
+  if (fp != NULL){
     fprintf(fp, "%s", rt.ftp_proxy->passwd);
-  } else
-  {
+  } else{
     free(rt.ftp_proxy->passwd);
     rt.ftp_proxy->passwd = strdup(val);
   }
+
+  return;
 }
 
 void set_ftp_proxy_type(int i, const char *const val, FILE * const fp)
 {
 
-  if (fp != NULL)
-  {
+  if (fp != NULL){
     fprintf(fp, "%d", (int) rt.ftp_proxy->type);
-  } else
-  {
+  } else{
     rt.ftp_proxy->type = (proxy_type) atoi(val);
   }
+
+  return;
 }
 
 void set_ftp_use_proxy(int i, const char *const val, FILE * const fp)
 {
 
-  if (fp != NULL)
-  {
+  if (fp != NULL){
     fprintf(fp, "%d", rt.use_ftp_proxy);
-  } else
-  {
+  } else{
     rt.use_ftp_proxy = atoi(val);
   }
+
+  return;
 }
 
 
 void set_mirrors_req(int i, const char *const val, FILE * const fp)
 {
 
-  if (fp != NULL)
-  {
+  if (fp != NULL){
     fprintf(fp, "%d", rt.ftps_mirror_req_n);
-  } else
-  {
+  } else{
     rt.ftps_mirror_req_n = atoi(val);
     if (rt.ftps_mirror_req_n <= 0 || rt.ftps_mirror_req_n> 1000)
       rt.ftps_mirror_req_n = 40;
   }
+
+  return;
 }
 
 void set_max_simul_pings(int i, const char *const val, FILE * const fp)
 {
 
-  if (fp != NULL)
-  {
+  if (fp != NULL){
     fprintf(fp, "%d", rt.max_simul_pings);
-  } else
-  {
+  } else{
     rt.max_simul_pings= atoi(val);
     if (rt.max_simul_pings <= 0 || rt.max_simul_pings> 30)
       rt.max_simul_pings=5;
   }
+
+  return;
 }
 
 
@@ -431,69 +422,67 @@ void set_max_simul_pings(int i, const char *const val, FILE * const fp)
 void set_max_ping_wait(int i, const char *const val, FILE * const fp)
 {
 
-  if (fp != NULL)
-  {
+  if (fp != NULL){
     fprintf(fp, "%d", rt.max_ping_wait);
-  } else
-  {
+  } else{
     rt.max_ping_wait= atoi(val);
     if (rt.max_ping_wait <= 0 || rt.max_ping_wait> 30)
       rt.max_ping_wait=5;
   }
+
+  return;
 }
 
 
 void set_use_ftpsearch(int i, const char *const val, FILE * const fp)
 {
 
-  if (fp != NULL)
-  {
+  if (fp != NULL){
     fprintf(fp, "%d", rt.ftp_search);
-  } else
-  {
+  } else{
     rt.ftp_search = atoi(val);
   }
 
+  return;
 }
 
 void set_ftpsearch_server_id(int i, const char *const val, FILE * const fp)
 {
-  if (fp != NULL)
-  {
+  if (fp != NULL){
     fprintf(fp, "%d", rt.ftpsearch_server_id);
-  } else
-  {
+  } else{
     rt.ftpsearch_server_id = atoi(val);
     if (rt.ftpsearch_server_id < 0)
       rt.ftpsearch_server_id = 0;
     else if (rt.ftpsearch_server_id > 1)
       rt.ftpsearch_server_id = 1;
-    
   }
+
+  return;
 }
 
 void set_display_mode(int i, const char *const val, FILE * const fp)
 {
 
-  if (fp != NULL)
-  {
+  if (fp != NULL){
     fprintf(fp, "%d", rt.display_mode);
-  } else
-  {
+  } else{
     rt.display_mode = atoi(val);
   }
+
+  return;
 }
 
 void set_search_size(int i, const char *const val, FILE * const fp)
 {
 
-  if (fp != NULL)
-  {
+  if (fp != NULL){
     fprintf(fp, "%ld", rt.min_search_size);
-  } else
-  {
+  } else{
     rt.min_search_size = atoi(val);
   }
+
+  return;
 }
 
 void save_prefs()
@@ -505,8 +494,7 @@ void save_prefs()
   snprintf(config_fname, PATH_MAX, "%s/.prozilla/%s", rt.home_dir,
 	   "prozconfig");
 
-  if ((fp = fopen(config_fname, "wt")) == NULL)
-  {
+  if ((fp = fopen(config_fname, "wt")) == NULL){
     perror("could not save preferences file");
     proz_debug("could not save preferences file :- %s", strerror(errno));
     return;
@@ -515,46 +503,52 @@ void save_prefs()
   fprintf(fp, "%s",
 	  "# ProZilla preferences file\n# This file is loaded and OVERWRITTEN each time ProZilla is run.\n# Please try to avoid writing to this file.\n#\n");
 
-  for (i = 0; pref_opts[i].varname != NULL; i++)
-  {
+  for (i = 0; pref_opts[i].varname != NULL; i++){
     fprintf(fp, "%s=", pref_opts[i].varname);
     (*pref_opts[i].proc) (i, NULL, fp);
     fprintf(fp, "\n");
   }
   fclose(fp);
+
+  return;
 }
 
+/* If a prefernce file exists, read prozilla configuration from the file
+ * else, create a file in the ~/.proz/ dir as prozconfig and save default
+ * configuration values
+ */
 void load_prefs()
 {
-  char config_fname[PATH_MAX];
-  FILE *fp;
+  char config_fname[PATH_MAX]={'\0'};
+  FILE *fp=NULL;
   int i;
-  char line[256];
+  char line[256]={'\0'};
   char *tok1, *tok2;
 
   snprintf(config_fname, PATH_MAX, "%s/.prozilla/%s", rt.home_dir,
 	   "prozconfig");
 
-  if ((fp = fopen(config_fname, "rt")) == NULL)
-  {
-
-    if (errno == ENOENT)	/*Create the file then if it doesnt exist */
-    {
-      save_prefs();
-      return;
-    }
-
-    else
-    {
+  /* "t" mode is to open a text file, some POSIX systems may not support
+   * this. TODO : Should I just remove this ?
+   */
+  if ((fp = fopen(config_fname, "rt")) == NULL){
+    /*Create the file then if it doesnt exist */
+    if (errno == ENOENT){
+		/* No configuration file exists, create a new one with default 
+		 * values
+		 */
+		save_prefs();
+		return;
+    }else{
       perror(_("could not open preferences file for reading"));
       proz_debug("could not open preferences file :- %s", strerror(errno));
       return;
     }
   }
 
+  /* Some parsing logic of the configuration file */
   line[sizeof(line) - 1] = '\0';
-  while (fgets(line, sizeof(line) - 1, fp) != NULL)
-  {
+  while (fgets(line, sizeof(line) - 1, fp) != NULL){
     tok1 = strtok(line, " =\t\r\n");
     if ((tok1 == NULL) || (tok1[0] == '#'))
       continue;
@@ -562,15 +556,14 @@ void load_prefs()
     if (tok2 == NULL)
       continue;
 
-    for (i = 0; pref_opts[i].varname != NULL; i++)
-    {
-      if (strcmp(tok1, pref_opts[i].varname) == 0)
-      {
-	if (pref_opts[i].proc != NULL)
-	  (*pref_opts[i].proc) (i, tok2, NULL);
+    for (i = 0; pref_opts[i].varname != NULL; i++){
+      if (strcmp(tok1, pref_opts[i].varname) == 0){
+		  if (pref_opts[i].proc != NULL)
+			  (*pref_opts[i].proc) (i, tok2, NULL);
       }
     }
   }
-
   fclose(fp);
+
+  return;
 }

@@ -22,9 +22,13 @@
 
 #include <config.h>
 #include "prozilla.h"
-//#include "ftps_win.h"
+/*
+ * #include "ftps_win.h"
+ */
 
-//void ftps_win_message_proc (const char *msg, void *cb_data);
+/*
+ * void ftps_win_message_proc (const char *msg, void *cb_data);
+ */
 
 
 class FTPS_Window {

@@ -235,18 +235,16 @@ void PrintMessage(const char *format, ...)
     vsnprintf((char *) &message, MAX_MSG_SIZE, format, args);
     va_end(args);
 
-  if (rt.display_mode == DISP_CURSES)
-  {
+  if (rt.display_mode == DISP_CURSES){
     curses_message(message);
-    }
-  else
-  {
-    if (fwrite(message, 1, strlen(message), stdout) != strlen(message))
-      {
+  } else{
+    if (fwrite(message, 1, strlen(message), stdout) != strlen(message)){
         return;
-      }
+	}
   }
-    delay_ms(500);
+  delay_ms(500);
+
+  return;
 }
 
 void DisplayInfo(int row, int col, const char *format, ...)
@@ -258,22 +256,22 @@ void DisplayInfo(int row, int col, const char *format, ...)
     vsnprintf((char *) &message, MAX_MSG_SIZE, format, args);
     va_end(args);
 
-  if (rt.display_mode == DISP_CURSES)
-  {
-    attrset(COLOR_PAIR(NULL_PAIR) | A_BOLD);
-    mvaddstr(row,col, message);
-    attrset(COLOR_PAIR(NULL_PAIR));
-
-    refresh();
-    }
-  else
-  {
-    if (fwrite(message, 1, strlen(message), stdout) != strlen(message))
-      {
-        return;
-      }
-  }
-  //  delay_ms(300);
+  
+	if (rt.display_mode == DISP_CURSES){
+		attrset(COLOR_PAIR(NULL_PAIR) | A_BOLD);
+		mvaddstr(row,col, message);
+		attrset(COLOR_PAIR(NULL_PAIR));
+		refresh();
+	}else{
+		if (fwrite(message, 1, strlen(message), stdout) != strlen(message)){
+			return;
+		}
+	}
+  /*
+   * delay_ms(300);
+   */
+  
+  return;
 }
 
 void DisplayCursesInfo(download_t * download )
@@ -282,75 +280,73 @@ void DisplayCursesInfo(download_t * download )
   int i = 0;
   int line = 1;
   int secs_left;  
-  //  erase();
-    refresh();
-    attrset(COLOR_PAIR(HIGHLIGHT_PAIR) | A_BOLD);
-      snprintf(buf, sizeof(buf), _("Connection  Server                    Status              Received"));
-    mvprintw(line++,1, buf);
+  /*
+   * erase();
+   */
+    
+  refresh();
+  attrset(COLOR_PAIR(HIGHLIGHT_PAIR) | A_BOLD);
+  snprintf(buf, sizeof(buf), _("Connection  Server                    Status              Received"));
+  mvprintw(line++,1, buf);
 
   attrset(COLOR_PAIR(NULL_PAIR));
 
-    total_bytes_got = proz_download_get_total_bytes_got(download) / 1024;
+  total_bytes_got = proz_download_get_total_bytes_got(download) / 1024;
   
-    if (start == 1)
-    {
+  if (start == 1){
       time_stamp = time(NULL);
       bytes_got_last_time = total_bytes_got;
       start = 0;
-    }
+  }
 
-    if (time_stamp + 1 == time(NULL))
-    {
-      current_dl_speed = total_bytes_got - bytes_got_last_time;
+  if (time_stamp + 1 == time(NULL)){
+	  current_dl_speed = total_bytes_got - bytes_got_last_time;
       time_stamp = time(NULL);
       bytes_got_last_time = total_bytes_got;
-    }
+  }
     
-  for (i = 0; i < download->num_connections; i++)
-    {
-      snprintf(buf,sizeof(buf), _("  %2d        %-25.25s %-15.15s %10.1fK of %.1fK"), i + 1,
-	      download->pconnections[i]->u.host,
-	      proz_connection_get_status_string(download->pconnections[i]),
-	      (float)proz_connection_get_total_bytes_got(download->
-						  pconnections[i])/1024, 
-          ((float)download->pconnections[i]->main_file_size / 1024) / download->num_connections);
-      mvprintw(line++,1, buf);
-    }
+  for (i = 0; i < download->num_connections; i++){
+	  snprintf(buf,sizeof(buf), _("  %2d        %-25.25s %-15.15s %10.1fK of %.1fK"), i + 1,
+			  download->pconnections[i]->u.host,
+			  proz_connection_get_status_string(download->pconnections[i]),
+			  (float)proz_connection_get_total_bytes_got(download->pconnections[i])/1024, 
+			  ((float)download->pconnections[i]->main_file_size / 1024) / download->num_connections);
+	  mvprintw(line++,1, buf);
+  }
 
-    line = line + 2;
-    attrset(COLOR_PAIR(HIGHLIGHT_PAIR) | A_BOLD);
-    mvprintw(line++, 1, "%s", download->u.url);
-    line++;
+  line = line + 2;
+  attrset(COLOR_PAIR(HIGHLIGHT_PAIR) | A_BOLD);
+  mvprintw(line++, 1, "%s", download->u.url);
+  line++;
     
-    attrset(COLOR_PAIR(HIGHLIGHT_PAIR));
-    if (download->main_file_size > 0)
+  attrset(COLOR_PAIR(HIGHLIGHT_PAIR));
+  if (download->main_file_size > 0)
       mvprintw(line++,1,_("File Size = %lldK"),download->main_file_size / 1024);
-    else
+  else
       mvprintw(line++,1,_("File Size = UNKNOWN"));
       
-    snprintf(buf,sizeof(buf), _("Total Bytes received %lld Kb (%.2f%%)"),
-	    total_bytes_got,
-      (((float)total_bytes_got * 100) / ((float)download->main_file_size / 1024)));
-    line++;
-    mvprintw(line++,1, buf);
+  snprintf(buf,sizeof(buf), _("Total Bytes received %lld Kb (%.2f%%)"),
+		  total_bytes_got,
+		  (((float)total_bytes_got * 100) / ((float)download->main_file_size / 1024)));
+  line++;
+  mvprintw(line++,1, buf);
 
-    snprintf(buf,sizeof(buf),_("Current speed = %1.2fKb/s, Average D/L speed = %1.2fKb/s"),
-	   current_dl_speed , proz_download_get_average_speed(download) / 1024);
-    mvprintw(line++,1, buf);
-    clrtoeol();
+  snprintf(buf,sizeof(buf),_("Current speed = %1.2fKb/s, Average D/L speed = %1.2fKb/s"),
+		  current_dl_speed , proz_download_get_average_speed(download) / 1024);
+  mvprintw(line++,1, buf);
+  clrtoeol();
 
-    if ((secs_left = proz_download_get_est_time_left(download)) != -1)
-    {
-      if (secs_left < 60)
+  if ((secs_left = proz_download_get_est_time_left(download)) != -1){
+	  if (secs_left < 60)
 	      snprintf(buf,sizeof(buf), _("Time Remaining %d Seconds"), secs_left);
       else if (secs_left < 3600)
 	      snprintf(buf,sizeof(buf), _("Time Remaining %d Minutes %d Seconds"), secs_left / 60,
 		    secs_left % 60);
       else
 	      snprintf(buf,sizeof(buf), _("Time Remaining %d Hours %d minutes"), secs_left / 3600,
-		    (secs_left % 3600) / 60);
+				  (secs_left % 3600) / 60);
 
-      mvprintw(line++,1, buf);
+	  mvprintw(line++,1, buf);
       clrtoeol();
       line++;
       
@@ -359,7 +355,9 @@ void DisplayCursesInfo(download_t * download )
         mvprintw(line++,1,_("Resume Supported"));
       else
         mvprintw(line++,1,_("Resume NOT Supported"));
-    }
+  }
   attrset(COLOR_PAIR(NULL_PAIR));
   refresh();
+
+  return;
 }

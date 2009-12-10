@@ -21,8 +21,10 @@
 #  include <config.h>
 #endif
 
-//#include <malloc.h>
-//#include <alloca.h>
+/*
+ * #include <malloc.h>
+ * #include <alloca.h>
+ */
 #include <string.h>
 #include <assert.h>
 #include <limits.h>
@@ -50,38 +52,30 @@ FTPS_Window::fetch_mirror_info (urlinfo * u, off_t file_size,
 
 	request = proz_ftps_request_init (u, file_size, ftps_loc,
 					  server_type, num_req_mirrors);
-  PrintMessage("Attempting to get %d mirrors from %s\n\n",num_req_mirrors, ftps_loc);
-	//proz_connection_set_msg_proc (request->connection,
-	//			      ftps_win_message_proc, this);
+	PrintMessage("Attempting to get %d mirrors from %s\n\n",num_req_mirrors, ftps_loc);
+	/*
+	 *proz_connection_set_msg_proc (request->connection,
+	 *			      ftps_win_message_proc, this);
+	 */
 	proz_get_complete_mirror_list (request);
 
 	request_running = TRUE;
+
+	return;
 }
-
-
-//void
-//ftps_win_message_proc (const char *msg, void *cb_data)
-//{
-//
-//}
 
 uerr_t
 FTPS_Window::callback ()
 {
 
-	if (request_running == TRUE)
-	{
-		if (proz_request_info_running (request) == FALSE)
-		{
+	if (request_running == TRUE){
+		if (proz_request_info_running (request) == FALSE){
 			pthread_join (request->info_thread, NULL);
-			if (request->err != MIRINFOK)
-			{
+			if (request->err != MIRINFOK){
 				request_running = FALSE;
 				got_mirror_info = FALSE;
 				return FTPSFAIL;
-			}
-			else
-			{
+			}else{
 				print_status(request, rt.quiet_mode);
 			}
 
@@ -92,7 +86,7 @@ FTPS_Window::callback ()
 			request->ping_timeout.tv_sec = rt.max_ping_wait;
 			request->ping_timeout.tv_usec = 0;
 
-			//Launch the pinging thread
+			/*Launch the pinging thread*/
 			PrintMessage("Got mirror info, %d server(s) found\n", request->num_mirrors);
 			proz_mass_ping (request);
 			ping_running = TRUE;
@@ -101,19 +95,16 @@ FTPS_Window::callback ()
 		return FTPSINPROGRESS;
 	}
 
-	if (ping_running == TRUE)
-	{
-
+	if (ping_running == TRUE){
 		print_status(request, rt.quiet_mode);
     
-		if (proz_request_mass_ping_running (request) == FALSE)
-		{
+		if (proz_request_mass_ping_running (request) == FALSE){
 			ping_done = TRUE;
 			ping_running = FALSE;
 			proz_sort_mirror_list (request->mirrors,
 					       request->num_mirrors);
 
-			// We have a seprate func to display this
+			/* We have a seprate func to display this */
 			print_status(request, FALSE);
       
 			return MASSPINGDONE;
@@ -128,17 +119,17 @@ FTPS_Window::callback ()
 void
 FTPS_Window::cleanup ()
 {
-	if (request_running == TRUE)
-	{
+	if (request_running == TRUE){
 		proz_cancel_mirror_list_request (request);
 		return;
 	}
 
-	if (ping_running == TRUE)
-	{
+	if (ping_running == TRUE){
 		proz_cancel_mass_ping (request);
 		return;
 	}
+
+	return;
 }
 
 
@@ -150,54 +141,51 @@ cb_exit_ftpsearch (void *data)
 
 	window->exit_ftpsearch_button_pressed = TRUE;
 
-	if (window->request_running == TRUE)
-	{
+	if (window->request_running == TRUE){
 		proz_cancel_mirror_list_request (window->request);
 	}
 
-	if (window->ping_running == TRUE)
-	{
+	if (window->ping_running == TRUE){
 		proz_cancel_mass_ping (window->request);
 	}
+
+	return;
 }
 
 void FTPS_Window::print_status(ftps_request_t *request, int quiet_mode)
 {
-    if (quiet_mode == FALSE || rt.display_mode == DISP_CURSES)
-    {
-		for (int i = 0; i < request->num_mirrors; i++)
-		{
+    if (quiet_mode == FALSE || rt.display_mode == DISP_CURSES){
+		for (int i = 0; i < request->num_mirrors; i++){
 			pthread_mutex_lock (&request->access_mutex);
 			ftp_mirror_stat_t status = request->mirrors[i].status;
 			pthread_mutex_unlock (&request->access_mutex);
-			switch (status)
-			{
-			case UNTESTED:
-				DisplayInfo(i+1,1, "%-30.30s  %s\n",
-					 request->mirrors[i].server_name,
-					 "NOT TESTED");
-				break;
-			case RESPONSEOK:
-				DisplayInfo(i+1,1, "%-30.30s  %dms\n",
-					 request->mirrors[i].server_name,
-					 request->mirrors[i].milli_secs);
-				break;
-			case NORESPONSE:
-			case ERROR:
-        DisplayInfo(i+1,1, "%-30.30s  %s\n",
-					 request->mirrors[i].server_name,
-					 "NO REPONSE");
-				break;
-			default:
-				DisplayInfo(i+1,1, "%-30.30s  %s\n",
-					 request->mirrors[i].server_name,
-					 "Unkown condition!!");
-				break;
+			switch (status){
+				case UNTESTED:
+					DisplayInfo(i+1,1, "%-30.30s  %s\n",
+							request->mirrors[i].server_name,
+							"NOT TESTED");
+					break;
+				case RESPONSEOK:
+					DisplayInfo(i+1,1, "%-30.30s  %dms\n",
+							request->mirrors[i].server_name,
+							request->mirrors[i].milli_secs);
+					break;
+				case NORESPONSE:
+				case ERROR:
+					DisplayInfo(i+1,1, "%-30.30s  %s\n",
+							request->mirrors[i].server_name,
+							"NO REPONSE");
+					break;
+				default:
+					DisplayInfo(i+1,1, "%-30.30s  %s\n",
+							request->mirrors[i].server_name,
+							"Unkown condition!!");
+					break;
 			}
 		}
-    if (rt.display_mode == DISP_STDOUT)
-      fprintf(stdout,"\n");
-  
+		if (rt.display_mode == DISP_STDOUT)
+			fprintf(stdout,"\n");
   }
-  
+
+	return;
 }

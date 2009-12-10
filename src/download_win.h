@@ -23,7 +23,7 @@ typedef enum {
 } dlwin_status_t;
 
 
-//The running dialog type 
+/*The running dialog type */
 typedef enum {
   DLG_GENERIC,
   DLG_URLNSFOD,
