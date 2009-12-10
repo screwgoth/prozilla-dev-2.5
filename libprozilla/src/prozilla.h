@@ -94,7 +94,7 @@ extern "C" {
 
 /* This is used when no password is found or specified. */
 #define DEFAULT_FTP_USER   "anonymous"
-#define DEFAULT_FTP_PASSWD "billg@hotmail.com"
+#define DEFAULT_FTP_PASSWD "user@prozilla.com"
 
 /* The D/L ed fragments will be saved to files with this extension.
  * E.g.: gnu.jpg.prz0, gnu.jpg.prz1 etc... */
@@ -459,7 +459,7 @@ extern "C" {
   void proz_free_url(urlinfo * u, boolean complete);
 
 /*Functions that set values which will apply for all conenctions. */
-  int proz_init(int argc, char **argv);
+  void proz_init(int argc, char **argv);
   void proz_shutdown(void);
   void proz_die(const char *message, ...);
 

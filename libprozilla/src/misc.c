@@ -179,22 +179,18 @@ int setargval(char *optstr, int *num)
 {
   if (*optstr == '=')
   {
-    if (is_number(optstr + 1))
-    {
+    if (is_number(optstr + 1)){
       *num = atoi(optstr + 1);
       return 1;
     } else
       return 0;
-  } else
-  {
-    if (is_number(optstr))
-    {
+  } else {
+    if (is_number(optstr)){
       *num = atoi(optstr);
       return 1;
     } else
       return 0;
   }
-
 }
 
 /******************************************************************************

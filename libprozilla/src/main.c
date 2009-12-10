@@ -25,28 +25,15 @@
 #include "common.h"
 #include "prozilla.h"
 #include "misc.h"
-//#include "getopt.h"
 #include "debug.h"
-
-
-
-/* static struct option long_opts[] = {
-  // { name    has_arg     *flag  val }
-  {"no-netrc", no_argument, NULL, 'n'},
-  {"use-port", no_argument, NULL, 129},
-  {"libdebug", no_argument, NULL, 130},
-  {NULL, 0, NULL, 0}
-};*/
 
 libprozinfo libprozrtinfo;
 
-
 /******************************************************************************
- Initialize the library.
+ Initialize the prozilla library.
 ******************************************************************************/
-int proz_init(int argc, char **argv)
+void proz_init(int argc, char **argv)
 {
-//  int c;
 
   /* Gettext stuff */
   setlocale(LC_ALL, "");
@@ -63,7 +50,7 @@ int proz_init(int argc, char **argv)
   libprozrtinfo.use_netrc = TRUE;
   libprozrtinfo.ftp_proxy = 0;
   libprozrtinfo.http_proxy = 0;
-  /* 3 minutes should be enough for the default timeout */
+  /* 2 minutes should be enough for the default timeout */
   libprozrtinfo.conn_timeout.tv_sec = 120;
   libprozrtinfo.conn_timeout.tv_usec = 0;
   /* 15 secs for the default retry_delay */
@@ -76,42 +63,26 @@ int proz_init(int argc, char **argv)
   /*default is unlimited (0) bandwith */
   libprozrtinfo.max_bps_per_dl = 0;
 
-  /* Parse the options and set the relevant ones for the library. */
-/*  while ((c = getopt_long(argc, argv, "", long_opts, NULL)) != EOF)
-  {
-    switch (c)
-    {
-    case 129:
-      libprozrtinfo.debug_mode = TRUE;
-      break;
-    default:
-      continue;
-    }
-  }
-*/
-  /* TODO Get home directory and read .netrc. */
-
   libprozrtinfo.home_dir = home_dir();
 
   if (libprozrtinfo.home_dir != NULL)
   {
     char *netrc_file = kmalloc(strlen(libprozrtinfo.home_dir)
 			       + strlen(".netrc") + 2);
-
     sprintf(netrc_file, "%s/%s", libprozrtinfo.home_dir, ".netrc");
-
     libprozrtinfo.netrc_list = parse_netrc(netrc_file);
   }
 
+  /* TODO : Command-line options for dl_dir, output_dir and log_dir */
   libprozrtinfo.dl_dir = kstrdup(".");
   libprozrtinfo.output_dir = kstrdup(".");
   libprozrtinfo.log_dir = kstrdup(".");
   debug_init();
-  return 1;
+  return;
 }
 
 /******************************************************************************
- ...
+ Shutting down prozilla gracefully
 ******************************************************************************/
 void proz_shutdown(void)
 {
@@ -141,7 +112,7 @@ void proz_die(const char *format, ...)
 }
 
 /******************************************************************************
- ...
+Set http proxy
 ******************************************************************************/
 void proz_set_http_proxy(proxy_info * proxy)
 {
@@ -152,7 +123,7 @@ void proz_set_http_proxy(proxy_info * proxy)
 }
 
 /******************************************************************************
- ...
+Set ftp proxy
 ******************************************************************************/
 void proz_set_ftp_proxy(proxy_info * proxy)
 {

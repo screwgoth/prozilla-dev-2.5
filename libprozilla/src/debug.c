@@ -44,23 +44,22 @@ void debug_init()
 void proz_debug_delete_log()
 {
 
-  char logfile_name[PATH_MAX];
+  char logfile_name[PATH_MAX]={'\0'};
   snprintf(logfile_name, PATH_MAX, "%s/debug.log", libprozrtinfo.log_dir);
 
 
-  if (unlink(logfile_name) == -1)
-  {
+  if (unlink(logfile_name) == -1){
     /*
      * if the file is not present the continue silently 
      */
     if (errno == ENOENT)
       return;
-    else
-    {
+    else{
       proz_debug(_("unable to delete the file %s. Reason-: %s"),
 		 strerror(errno));
     }
   }
+  return;
 }
 
 /******************************************************************************
