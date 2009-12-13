@@ -160,7 +160,7 @@ help (void)
 		 "      -V, --version     Display version number\n"
 		 "\n"
 		 "ProZilla homepage: http://prozilla.genesys.ro\n"
-		 "Please report bugs to <prozilla@genesys.ro>\n");
+		 "Please report bugs to <raseelbhagat@gmail.com>\n");
 }
 
 

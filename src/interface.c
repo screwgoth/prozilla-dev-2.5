@@ -231,16 +231,16 @@ void PrintMessage(const char *format, ...)
   va_list args;
   char message[MAX_MSG_SIZE + 1 + 1];
 
-    va_start(args, format);
-    vsnprintf((char *) &message, MAX_MSG_SIZE, format, args);
-    va_end(args);
+  va_start(args, format);
+  vsnprintf((char *) &message, MAX_MSG_SIZE, format, args);
+  va_end(args);
 
   if (rt.display_mode == DISP_CURSES){
-    curses_message(message);
+	  curses_message(message);
   } else{
-    if (fwrite(message, 1, strlen(message), stdout) != strlen(message)){
-        return;
-	}
+	  if (fwrite(message, 1, strlen(message), stdout) != strlen(message)){
+		  return;
+	  }
   }
   delay_ms(500);
 
