@@ -65,12 +65,14 @@ void proz_init(int argc, char **argv)
 
   libprozrtinfo.home_dir = home_dir();
 
-  if (libprozrtinfo.home_dir != NULL)
-  {
+  if (libprozrtinfo.home_dir != NULL){
     char *netrc_file = kmalloc(strlen(libprozrtinfo.home_dir)
 			       + strlen(".netrc") + 2);
     sprintf(netrc_file, "%s/%s", libprozrtinfo.home_dir, ".netrc");
     libprozrtinfo.netrc_list = parse_netrc(netrc_file);
+  } else {
+	  /* Make sure home dir is never NULL */
+	  libprozrtinfo.home_dir = kstrdup(".");
   }
 
   /* TODO : Command-line options for dl_dir, output_dir and log_dir */
