@@ -455,6 +455,9 @@ main (int argc, char **argv)
 				proz_debug
 					("%s does not seem to be a valid URL",
 				 	argv[optind]);
+				if(url_data)
+					free(url_data);
+				shutdown();
 				exit (-1);
 			}
 
@@ -464,13 +467,17 @@ main (int argc, char **argv)
 			ret=open_new_dl_win (url_data, rt.ftp_search);
 			/*If the download failed the return -1 */
 			if(ret==-1){
-				free(url_data);
-				delete(dl_win);
+				if(url_data)
+					free(url_data);
+				if(dl_win)
+					delete(dl_win);
 				shutdown();
 				return -1;
 			}
-			delete(dl_win);
-			free (url_data);
+			if(dl_win)
+				delete(dl_win);
+			if(url_data)
+				free (url_data);
 		}
 	}
 
